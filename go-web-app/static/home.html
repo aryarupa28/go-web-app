@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Task Manager</title>
+    <style>
+        :root {
+            --bg-color: #eceff1;
+            --text-color: #37474f;
+            --header-bg: #455a64;
+            --header-text: #eceff1;
+            --card-bg: #ffffff;
+            --button-bg: #0288d1;
+            --button-hover: #0277bd;
+            --completed-bg: #c8e6c9;
+            --delete-bg: #d32f2f;
+            --delete-hover: #b71c1c;
+        }
+
+        body.dark-mode {
+            --bg-color: #263238;
+            --text-color: #eceff1;
+            --header-bg: #37474f;
+            --header-text: #ffffff;
+            --card-bg: #455a64;
+            --button-bg: #03a9f4;
+            --button-hover: #0288d1;
+            --completed-bg: #388e3c;
+            --delete-bg: #ff5252;
+            --delete-hover: #d32f2f;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            font-size: 1.8em;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-mode {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-right: 20px;
+        }
+
+        .mode-icon {
+            width: 30px;
+            height: 30px;
+        }
+
+        main {
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            background: var(--card-bg);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .task-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], select {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #b0bec5;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        button {
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .add-btn {
+            background-color: var(--button-bg);
+            color: white;
+        }
+
+        .add-btn:hover {
+            background-color: var(--button-hover);
+        }
+
+        ul {
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .task-list, .completed-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        ul li {
+            background: var(--card-bg);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s ease-in-out;
+        }
+
+        .completed {
+            background: var(--completed-bg) !important;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: var(--delete-bg);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: var(--delete-hover);
+        }
+    </style>
+    <script>
+        function toggleMode() {
+            document.body.classList.toggle("dark-mode");
+            const modeIcon = document.getElementById("modeIcon");
+            modeIcon.src = document.body.classList.contains("dark-mode") ? "https://cdn-icons-png.flaticon.com/512/581/581601.png" : "https://cdn-icons-png.flaticon.com/512/1164/1164954.png";
+        }
+
+        function addTask() {
+            var taskInput = document.getElementById("taskInput");
+            var priority = document.getElementById("taskPriority").value;
+            var taskText = taskInput.value.trim();
+            if (taskText === "") return;
+            
+            var li = document.createElement("li");
+            li.innerHTML = `<span>${taskText} (Priority: ${priority})</span>
+                <div class="task-actions">
+                    <button onclick="markCompleted(this)">Complete</button>
+                    <button onclick="editTask(this)">Edit</button>
+                    <button class="delete-btn" onclick="removeTask(this)">Delete</button>
+                </div>`;
+            document.getElementById("taskList").appendChild(li);
+            taskInput.value = "";
+        }
+
+        function removeTask(button) {
+            button.closest("li").remove();
+        }
+
+        function editTask(button) {
+            var li = button.closest("li");
+            var taskText = li.querySelector("span").textContent.split(" (Priority")[0];
+            var newTaskText = prompt("Edit task:", taskText);
+            if (newTaskText && newTaskText.trim() !== "") {
+                li.querySelector("span").textContent = newTaskText + " (Priority: " + li.querySelector("span").textContent.split("Priority: ")[1];
+            }
+        }
+
+        function markCompleted(button) {
+            var li = button.closest("li");
+            li.classList.add("completed");
+            li.querySelector(".task-actions").innerHTML = '<button class="delete-btn" onclick="removeTask(this)">Delete</button>';
+            document.getElementById("completedList").appendChild(li);
+        }
+    </script>
+</head>
+<body>
+    <header>
+         Task Manager
+        <button class="toggle-mode" onclick="toggleMode()">
+            <img id="modeIcon" class="mode-icon" src="https://cdn-icons-png.flaticon.com/512/1164/1164954.png" alt="Toggle Mode">
+        </button>
+    </header>
+
+    <main>
+        <div class="task-controls">
+            <input type="text" id="taskInput" placeholder="Enter a new task...">
+            <select id="taskPriority">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+            <button class="add-btn" onclick="addTask()">Add Task</button>
+        </div>
+        <div class="task-list">
+            <h3>Pending Tasks</h3>
+            <ul id="taskList"></ul>
+        </div>
+        <div class="completed-list">
+            <h3>Completed Tasks</h3>
+            <ul id="completedList"></ul>
+        </div>
+    </main>
+</body>
+</html>
